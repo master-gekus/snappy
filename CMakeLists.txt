@@ -109,6 +109,30 @@ if(BUILD_SHARED_LIBS)
 endif(BUILD_SHARED_LIBS)
 
 if(SNAPPY_BUILD_TESTS)
+  if(NOT HAVE_GTEST)
+    include(ExternalProject)
+
+    ExternalProject_Add(googletest
+        GIT_REPOSITORY https://github.com/google/googletest.git
+        UPDATE_DISCONNECTED 1
+        CMAKE_ARGS
+        -DCMAKE_BUILD_TYPE=$<CONFIG>
+        -Dgtest_force_shared_crt=ON
+        -DCMAKE_DEBUG_POSTFIX=
+        PREFIX "${CMAKE_CURRENT_BINARY_DIR}/gtest"
+        INSTALL_COMMAND ""
+        )
+
+    ExternalProject_Get_Property(googletest SOURCE_DIR)
+    set(GTEST_INCLUDE_DIRS ${SOURCE_DIR}/googletest/include)
+    include_directories(${GTEST_INCLUDE_DIRS})
+
+    ExternalProject_Get_Property(googletest BINARY_DIR)
+    set(GTEST_LIBS_DIR ${BINARY_DIR}/googlemock/gtest)
+
+    set(GTEST_EXTERNAL 1)
+  endif(NOT HAVE_GTEST)
+
   enable_testing()
 
   add_executable(snappy_unittest "")
@@ -126,6 +150,16 @@ if(SNAPPY_BUILD_TESTS)
   if(HAVE_LIBLZO2)
     target_link_libraries(snappy_unittest lzo2)
   endif(HAVE_LIBLZO2)
+
+  if(GTEST_EXTERNAL)
+    add_dependencies(snappy_unittest googletest)
+    target_link_libraries(snappy_unittest
+        ${GTEST_LIBS_DIR}/${CMAKE_STATIC_LIBRARY_PREFIX}gtest${CMAKE_STATIC_LIBRARY_SUFFIX}
+        ${GTEST_LIBS_DIR}/${CMAKE_STATIC_LIBRARY_PREFIX}gtest_main${CMAKE_STATIC_LIBRARY_SUFFIX}
+    )
+  else(GTEST_EXTERNAL)
+    target_link_libraries(snappy_unittest gtest)
+  endif(GTEST_EXTERNAL)
 
   target_include_directories(snappy_unittest
     BEFORE PRIVATE
