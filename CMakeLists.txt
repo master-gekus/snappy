@@ -40,6 +40,31 @@ check_symbol_exists("sysconf" "unistd.h" HAVE_FUNC_SYSCONF)
 find_package(GTest QUIET)
 if(GTEST_FOUND)
   set(HAVE_GTEST 1)
+else(GTEST_FOUND)
+  if(SNAPPY_BUILD_TESTS)
+    set(HAVE_GTEST 1)
+
+    include(ExternalProject)
+
+    ExternalProject_Add(googletest
+        GIT_REPOSITORY https://github.com/google/googletest.git
+        UPDATE_DISCONNECTED 1
+        CMAKE_ARGS
+        -DCMAKE_BUILD_TYPE=$<CONFIG>
+        -Dgtest_force_shared_crt=ON
+        -DCMAKE_DEBUG_POSTFIX=
+        PREFIX "${CMAKE_CURRENT_BINARY_DIR}/gtest"
+        INSTALL_COMMAND ""
+        )
+
+    ExternalProject_Get_Property(googletest SOURCE_DIR)
+    set(GTEST_INCLUDE_DIRS ${SOURCE_DIR}/googletest/include)
+    include_directories(${GTEST_INCLUDE_DIRS})
+
+    ExternalProject_Get_Property(googletest BINARY_DIR)
+    set(GTEST_LIBS_DIR ${BINARY_DIR}/googlemock/gtest)
+    set(GTEST_EXTERNAL 1)
+  endif(SNAPPY_BUILD_TESTS)
 endif(GTEST_FOUND)
 
 find_package(Gflags QUIET)
@@ -109,30 +134,6 @@ if(BUILD_SHARED_LIBS)
 endif(BUILD_SHARED_LIBS)
 
 if(SNAPPY_BUILD_TESTS)
-  if(NOT HAVE_GTEST)
-    include(ExternalProject)
-
-    ExternalProject_Add(googletest
-        GIT_REPOSITORY https://github.com/google/googletest.git
-        UPDATE_DISCONNECTED 1
-        CMAKE_ARGS
-        -DCMAKE_BUILD_TYPE=$<CONFIG>
-        -Dgtest_force_shared_crt=ON
-        -DCMAKE_DEBUG_POSTFIX=
-        PREFIX "${CMAKE_CURRENT_BINARY_DIR}/gtest"
-        INSTALL_COMMAND ""
-        )
-
-    ExternalProject_Get_Property(googletest SOURCE_DIR)
-    set(GTEST_INCLUDE_DIRS ${SOURCE_DIR}/googletest/include)
-    include_directories(${GTEST_INCLUDE_DIRS})
-
-    ExternalProject_Get_Property(googletest BINARY_DIR)
-    set(GTEST_LIBS_DIR ${BINARY_DIR}/googlemock/gtest)
-
-    set(GTEST_EXTERNAL 1)
-  endif(NOT HAVE_GTEST)
-
   enable_testing()
 
   add_executable(snappy_unittest "")
