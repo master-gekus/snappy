@@ -125,7 +125,7 @@ void StopBenchmarkTiming() {
   double elapsed_real = static_cast<double>(
       benchmark_stop_real.QuadPart - benchmark_start_real.QuadPart) /
       benchmark_frequency.QuadPart;
-  benchmark_real_time_us += elapsed_real * 1e6 + 0.5;
+  benchmark_real_time_us += static_cast<int64>(elapsed_real * 1e6 + 0.5);
 
   FILETIME benchmark_stop_cpu, dummy;
   CHECK(GetProcessTimes(
@@ -202,7 +202,7 @@ void Benchmark::Run() {
     const int kMedianPos = kNumRuns / 2;
     int num_iterations = 0;
     if (benchmark_real_time_us > 0) {
-      num_iterations = 200000 * kCalibrateIterations / benchmark_real_time_us;
+      num_iterations = static_cast<int>(200000 * kCalibrateIterations / benchmark_real_time_us);
     }
     num_iterations = std::max(num_iterations, kCalibrateIterations);
     BenchmarkRun benchmark_runs[kNumRuns];

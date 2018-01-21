@@ -143,6 +143,9 @@ if(SNAPPY_BUILD_TESTS)
       "${PROJECT_SOURCE_DIR}/snappy-test.cc"
   )
   target_compile_definitions(snappy_unittest PRIVATE -DHAVE_CONFIG_H)
+  if(MSVC)
+    target_compile_definitions(snappy_unittest PRIVATE -D_CRT_SECURE_NO_WARNINGS)
+  endif(MSVC)
   target_link_libraries(snappy_unittest snappy ${GFLAGS_LIBRARIES})
 
   if(HAVE_LIBZ)

@@ -152,7 +152,7 @@ namespace file {
       exit(1);
     }
 
-    int ret = fwrite(str.data(), str.size(), 1, fp);
+    size_t ret = fwrite(str.data(), str.size(), 1, fp);
     if (ret != 1) {
       perror("fwrite");
       exit(1);
@@ -227,7 +227,7 @@ inline int32 ACMRandom::Next() {
   uint64 product = seed_ * A;
 
   // Compute (product % M) using the fact that ((x << 31) % M) == x.
-  seed_ = (product >> 31) + (product & M);
+  seed_ = static_cast<uint32>((product >> 31) + (product & M));
   // The first reduction may overflow by 1 bit, so we may need to repeat.
   // mod == M is not possible; using > allows the faster sign-bit-based test.
   if (seed_ > M) {
@@ -264,7 +264,7 @@ class CycleTimer {
 
     double elapsed = static_cast<double>(stop.QuadPart - start_.QuadPart) /
         frequency.QuadPart;
-    real_time_us_ += elapsed * 1e6 + 0.5;
+    real_time_us_ += static_cast<int64>(elapsed * 1e6 + 0.5);
 #else
     struct timeval stop;
     gettimeofday(&stop, NULL);
