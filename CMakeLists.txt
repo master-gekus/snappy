@@ -161,6 +161,9 @@ if(SNAPPY_BUILD_TESTS)
         ${GTEST_LIBS_DIR}/${CMAKE_STATIC_LIBRARY_PREFIX}gtest${CMAKE_STATIC_LIBRARY_SUFFIX}
         ${GTEST_LIBS_DIR}/${CMAKE_STATIC_LIBRARY_PREFIX}gtest_main${CMAKE_STATIC_LIBRARY_SUFFIX}
     )
+    if(UNIX)
+      target_link_libraries(snappy_unittest pthread)
+    endif(UNIX)
   else(GTEST_EXTERNAL)
     target_link_libraries(snappy_unittest gtest)
   endif(GTEST_EXTERNAL)
