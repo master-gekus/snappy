@@ -52,6 +52,14 @@
 #endif
 
 #ifdef HAVE_WINDOWS_H
+// Needed to be able to use std::max without workarounds in the source code.
+// https://support.microsoft.com/en-us/help/143208/prb-using-stl-in-windows-program-can-cause-min-max-conflicts
+#define NOMINMAX
+
+// Windows defines self own ARRAYSIZE
+#ifdef ARRAYSIZE
+# undef ARRAYSIZE
+#endif
 #include <windows.h>
 #endif
 

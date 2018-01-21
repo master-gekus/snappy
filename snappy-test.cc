@@ -32,13 +32,6 @@
 #include "config.h"
 #endif
 
-#ifdef HAVE_WINDOWS_H
-// Needed to be able to use std::max without workarounds in the source code.
-// https://support.microsoft.com/en-us/help/143208/prb-using-stl-in-windows-program-can-cause-min-max-conflicts
-#define NOMINMAX
-#include <windows.h>
-#endif
-
 #include "snappy-test.h"
 
 #include <algorithm>
